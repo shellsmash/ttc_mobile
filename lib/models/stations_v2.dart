@@ -20,7 +20,12 @@ class Station {
 
 final List<Station> stationList = [
   // --- LINE 1: YONGE-UNIVERSITY (U-Shape) ---
-  Station(name: "Vaughan MC", pos: Vector2(150, 50), lines: [1]),
+  Station(
+    name: "Vaughan MC",
+    pos: Vector2(150, 50),
+    lines: [1],
+    status: StationStatus.securityIncident,
+  ),
   Station(name: "Highway 407", pos: Vector2(150, 100), lines: [1]),
   Station(name: "Pioneer Village", pos: Vector2(150, 150), lines: [1]),
   Station(name: "York University", pos: Vector2(150, 200), lines: [1]),

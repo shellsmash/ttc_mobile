@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../../../models/stations_v2.dart';
 import '../anim/pulse.dart';
 
-class StationComponent extends CircleComponent with TapCallbacks {
+class StationComponent extends CircleComponent with TapCallbacks, DragCallbacks {
   final Station station;
   final Function(Station) onSelected;
 
@@ -21,6 +21,7 @@ class StationComponent extends CircleComponent with TapCallbacks {
 
   @override
   Future<void> onLoad() async {
+
     add(CircleComponent(
       radius: radius,
       paint: Paint()
@@ -43,11 +44,18 @@ class StationComponent extends CircleComponent with TapCallbacks {
       ),
     ));
 
-    if (station.status == StationStatus.securityIncident) {
-      add(PulseEffect());
-    }
   }
 
   @override
-  void onTapDown(TapDownEvent event) => onSelected(station);
+  void onTapDown(TapDownEvent event) {
+    onSelected(station);
+  }
+
+  @override
+  void onMount() {
+    super.onMount();
+    if (station.status == StationStatus.securityIncident) {
+      parent?.add(PulseEffect(position: station.pos));
+    }
+  }
 }
