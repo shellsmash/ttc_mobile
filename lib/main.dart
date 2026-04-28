@@ -1,6 +1,7 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:ttc/models/stations_v2.dart';
+import 'package:ttc/models/disruption.dart';
 import 'package:ttc/views/widgets/game.dart';
 
 void main() {
@@ -36,9 +37,15 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
   @override
   void initState() {
     super.initState();
+    // Example disruptions: Line 2 between Islington and Jane
+    final disruptions = [
+      LineDisruption(lineId: 1, fromStationName: 'Highway 407', toStationName: 'Pioneer Village'),
+    ];
+
     game = TTCMapGame(
       stations: stationList,
       onStationTap: (station) => _showDetails(context, station),
+      disruptions: disruptions,
     );
   }
 

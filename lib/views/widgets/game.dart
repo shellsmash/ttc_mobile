@@ -4,6 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/experimental.dart';
 import 'package:flame/game.dart';
+import 'package:ttc/models/disruption.dart';
 import 'package:ttc/models/stations_v2.dart';
 import 'package:ttc/views/widgets/component/station.dart';
 import 'package:ttc/views/widgets/component/subway_line.dart';
@@ -18,14 +19,16 @@ class TTCMapGame extends FlameGame with DragCallbacks, ScaleCallbacks {
 
   double _startZoom = 1.0;
 
-  TTCMapGame({required this.stations, required this.onStationTap});
+  List<LineDisruption> disruptions = [];
+
+  TTCMapGame({required this.stations, required this.onStationTap, this.disruptions = const []});
 
   @override
   Future<void> onLoad() async {
     // Add the map layout.
     // Background : Black in color
     // TODO : Try to add a background, like discord theme, with a subtle grid or texture to make it more visually appealing.
-    world.add(SubwayLinesComponent(stations));
+    world.add(SubwayLinesComponent(stations, disruptions: disruptions));
 
     // TODO: add a new component to highlight disruption between lines.
     // TODO: Like `Pulses` implemented to show disruption at Bloor-Yonge, we can add a `LineDisruptionEffect` that animates along the line segments between affected stations.
