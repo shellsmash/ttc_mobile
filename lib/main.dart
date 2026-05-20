@@ -1,7 +1,79 @@
+// lib/main.dart
+//
+// import 'package:flame/events.dart';
+// import 'package:flame/game.dart';
+// import 'package:flutter/material.dart';
+//
+// import 'package:flame/components.dart';
+// import 'package:flame/input.dart';
+// import 'package:flame_tiled/flame_tiled.dart';
+
+//
+// void main() {
+//   runApp(
+//     GameWidget(
+//       game: TTCGame(),
+//     ),
+//   );
+// }
+//
+// // lib/ttc_game.dart
+//
+//
+// class TTCGame extends FlameGame with DragCallbacks, ScrollDetector {
+//   late final CameraComponent cameraComponent;
+//   late final World world;
+//
+//   @override
+//   Future<void> onLoad() async {
+//     await super.onLoad();
+//
+//     world = World();
+//     add(world);
+//
+//     cameraComponent = CameraComponent(world: world);
+//     cameraComponent.viewfinder.zoom = 1.0;
+//
+//     add(cameraComponent);
+//
+//     final map = await TiledComponent.load(
+//       'ttc_map.tmx',
+//       Vector2.all(32),
+//     );
+//
+//     world.add(map);
+//   }
+//
+//   @override
+//   void onDragUpdate(DragUpdateEvent event) {
+//     cameraComponent.viewfinder.position -= event.localDelta;
+//   }
+//
+//   @override
+//   void onScroll(PointerScrollInfo info) {
+//     final delta = info.scrollDelta.global.y;
+//
+//     if (delta > 0) {
+//       cameraComponent.viewfinder.zoom -= 0.1;
+//     } else {
+//       cameraComponent.viewfinder.zoom += 0.1;
+//     }
+//
+//     cameraComponent.viewfinder.zoom = cameraComponent.viewfinder.zoom.clamp(
+//       0.5,
+//       4.0,
+//     );
+//   }
+// }
+
+// }
+
+import 'dart:convert';
+
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:ttc/models/stations_v2.dart';
 import 'package:ttc/models/disruption.dart';
+import 'package:ttc/models/stations_v2.dart';
 import 'package:ttc/views/widgets/game.dart';
 
 void main() {
@@ -32,21 +104,61 @@ class SubwayMapScreen extends StatefulWidget {
 }
 
 class _SubwayMapScreenState extends State<SubwayMapScreen> {
-  late TTCMapGame game;
+  List<Station> stations = [];
+
+  List<LineDisruption> disruptions = [];
 
   @override
   void initState() {
     super.initState();
     // Example disruptions: Line 2 between Islington and Jane
-    final disruptions = [
-      LineDisruption(lineId: 1, fromStationName: 'Highway 407', toStationName: 'Pioneer Village'),
+    disruptions = [
+      LineDisruption(
+        lineId: 1,
+        fromStationName: 'Highway 407',
+        toStationName: 'Pioneer Village',
+      ),
     ];
+  }
 
-    game = TTCMapGame(
-      stations: stationList,
-      onStationTap: (station) => _showDetails(context, station),
-      disruptions: disruptions,
+  @override
+  void didUpdateWidget(covariant SubwayMapScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+  }
+
+  Future<bool> initMap() async {
+    final res = jsonDecode(
+      await DefaultAssetBundle.of(context).loadString("assets/map/map.json"),
     );
+
+    List<int> translateLineNumber(String dat) {
+      if (dat.split(",").length > 1) {
+        return dat.split(",").map((x) => int.parse(x)).toList();
+      }
+      return [int.parse(dat)];
+    }
+
+    stations = (res['data'] as List)
+        .map(
+          (item) => Station(
+            name: item['name'],
+            pos: Vector2(
+              item['translated_lat'].toDouble(),
+              item['translated_lon'].toDouble(),
+            ),
+            lines: translateLineNumber(item['line_number']),
+            stop_id: item['id'],
+            parent_id: item['parent_station_id'],
+          ),
+        )
+        .toList();
+
+    return true;
   }
 
   @override
@@ -56,7 +168,21 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
         title: const Text('TTC LIVE SYSTEM MAP'),
         backgroundColor: Colors.black,
       ),
-      body: GameWidget(game: game),
+      body: FutureBuilder(
+        future: initMap(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return GameWidget(
+              game: TTCMapGame(
+                stations: stations,
+                onStationTap: (station) => _showDetails(context, station),
+                disruptions: disruptions,
+              ),
+            );
+          }
+          return Center(child: CircularProgressIndicator.adaptive());
+        },
+      ),
     );
   }
 

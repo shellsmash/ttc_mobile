@@ -32,6 +32,16 @@ class SubwayLinesComponent extends Component {
       ..strokeWidth = 8
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round,
+    5: Paint()
+      ..color = const Color(0xFFFFA500) // Orange
+      ..strokeWidth = 8
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round,
+    6: Paint()
+      ..color = const Color(0xFF0000FF) // Blue
+      ..strokeWidth = 8
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round,
   };
 
   final Paint disruptedLine = Paint()
@@ -52,7 +62,7 @@ class SubwayLinesComponent extends Component {
 
   @override
   void render(Canvas canvas) {
-    for (int lineId in [1, 2, 3, 4]) {
+    for (int lineId in [1, 2, 3, 4, 5, 6]) {
       final lineStations = stations
           .where((s) => s.lines.contains(lineId))
           .toList();
