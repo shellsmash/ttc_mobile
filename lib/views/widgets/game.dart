@@ -3,14 +3,12 @@ import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:ttc/models/disruption.dart';
 import 'package:ttc/models/stations_v2.dart';
-import 'package:ttc/views/widgets/component/line_1.dart';
-import 'package:ttc/views/widgets/component/line_2.dart';
+import 'package:ttc/views/widgets/component/line/line_1.dart';
 
-import 'component/line_4.dart';
-import 'component/line_5.dart';
-import 'component/line_6.dart';
-import 'component/station.dart';
-import 'component/subway_line.dart';
+import 'component/line/line_2.dart';
+import 'component/line/line_4.dart';
+import 'component/line/line_5.dart';
+import 'component/line/line_6.dart';
 
 class TTCMapGame extends FlameGame with DragCallbacks, ScaleCallbacks {
   // final Function(Station) onStationTap;
@@ -51,17 +49,6 @@ class TTCMapGame extends FlameGame with DragCallbacks, ScaleCallbacks {
     world.addAll([Line1(), Line2(), Line4(), Line5(), Line6()]);
 
     // UpExpress()
-  }
-
-  void updateStations() {
-    world.removeAll(world.children.whereType<SubwayLinesComponent>());
-    // world.add(SubwayLinesComponent(stations, disruptions: disruptions));
-    var oldComponents = world.children.whereType<StationComponent>();
-    world.removeAll(oldComponents);
-
-    for (var s in stations) {
-      // world.add(StationComponent(station: s, onSelected: onStationTap));
-    }
   }
 
   // @override

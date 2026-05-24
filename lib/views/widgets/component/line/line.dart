@@ -13,6 +13,9 @@ abstract class TransitLineComponent extends Component with TapCallbacks {
   late final Paint linePaint;
   late final Paint glowPaint;
 
+  late final Paint stationPaint;
+  late final Paint disabledStationPaint;
+
   bool isGlowing = false;
 
   TransitLineComponent({
@@ -27,6 +30,11 @@ abstract class TransitLineComponent extends Component with TapCallbacks {
       canvas.drawPath(linePath, glowPaint);
     }
     canvas.drawPath(linePath, linePaint);
+    for (final waypoint in waypoints) {
+      final offset = Offset(waypoint.x, waypoint.y);
+      canvas.drawCircle(offset, strokeWidth * 0.8, stationPaint);
+      canvas.drawCircle(offset, strokeWidth * 0.8, stationPaint);
+    }
   }
 
   @override
@@ -104,13 +112,27 @@ abstract class TransitLineComponent extends Component with TapCallbacks {
       ..strokeJoin = StrokeJoin.round
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8.0);
 
+    stationPaint = Paint()
+      ..color =
+          const Color(0xFFFFFFFF) // White inner circle
+      ..style = PaintingStyle.fill;
+
+    disabledStationPaint = Paint()
+      ..color = const Color(0xFFFFFFFF)
+          .withOpacity(0.2) // Dimmed white
+      ..style = PaintingStyle.fill;
+
     linePath = Path();
     if (waypoints.isNotEmpty) {
       linePath.moveTo(waypoints.first.x, waypoints.first.y);
       for (int i = 1; i < waypoints.length; i++) {
-        linePath.lineTo(waypoints[i].x, waypoints[i].y);
+        addStop(waypoints[i]);
       }
     }
+  }
+
+  void addStop(Vector2 waypoint) {
+    linePath.lineTo(waypoint.x, waypoint.y);
   }
 
   /// Calculates [stationCount] coordinates equally distributed across the entire path.

@@ -14,4 +14,6 @@ class Line6 extends TransitLineComponent {
           Vector2(-230, 300), // Finch West (Transfer: Line 1)
         ],
       );
+
+
 }

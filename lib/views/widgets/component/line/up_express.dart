@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'line.dart';
 
+
 class UpExpress extends TransitLineComponent {
   UpExpress()
     : super(
