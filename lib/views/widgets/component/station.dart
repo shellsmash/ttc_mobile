@@ -4,7 +4,7 @@
 // import 'package:flame/events.dart';
 // import 'package:flutter/material.dart';
 //
-// import '../../../models/stations_v2.dart';
+// import '../../../models/station_stop.dart';
 // import '../anim/pulse.dart';
 //
 // class StationComponent extends CircleComponent with TapCallbacks, DragCallbacks {

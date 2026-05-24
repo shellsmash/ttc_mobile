@@ -1,12 +1,12 @@
-import 'dart:ui';
-
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
+import 'package:ttc/models/station_stop.dart';
+import 'package:ttc/views/widgets/utils/text_stop.dart';
 
 abstract class TransitLineComponent extends Component with TapCallbacks {
   final Color lineColor;
-  final List<Vector2> waypoints;
+  final List<StationStop> waypoints;
   final double strokeWidth;
 
   late final Path linePath;
@@ -17,6 +17,8 @@ abstract class TransitLineComponent extends Component with TapCallbacks {
   late final Paint disabledStationPaint;
 
   bool isGlowing = false;
+
+  double _textRotationRadian = -.5;
 
   TransitLineComponent({
     required this.lineColor,
@@ -31,10 +33,20 @@ abstract class TransitLineComponent extends Component with TapCallbacks {
     }
     canvas.drawPath(linePath, linePaint);
     for (final waypoint in waypoints) {
-      final offset = Offset(waypoint.x, waypoint.y);
+      final offset = Offset(waypoint.pos.x, waypoint.pos.y);
       canvas.drawCircle(offset, strokeWidth * 0.8, stationPaint);
       canvas.drawCircle(offset, strokeWidth * 0.8, stationPaint);
+      TextPainter tp = stopNameSpan(waypoint.name);
+      canvas.save();
+      addText(canvas, offset, waypoint.name, tp);
+      canvas.restore();
     }
+  }
+
+  void addText(Canvas canvas, Offset offset, String text, TextPainter tp) {
+    canvas.translate(offset.dx, offset.dy);
+    canvas.rotate(_textRotationRadian);
+    tp.paint(canvas, Offset(10, -tp.height / 2));
   }
 
   @override
@@ -70,7 +82,11 @@ abstract class TransitLineComponent extends Component with TapCallbacks {
     final hitThreshold = strokeWidth * 1.5;
 
     for (int i = 0; i < waypoints.length - 1; i++) {
-      if (_distancePointToSegment(point, waypoints[i], waypoints[i + 1]) <=
+      if (_distancePointToSegment(
+            point,
+            waypoints[i].pos,
+            waypoints[i + 1].pos,
+          ) <=
           hitThreshold) {
         return true;
       }
@@ -124,9 +140,9 @@ abstract class TransitLineComponent extends Component with TapCallbacks {
 
     linePath = Path();
     if (waypoints.isNotEmpty) {
-      linePath.moveTo(waypoints.first.x, waypoints.first.y);
+      linePath.moveTo(waypoints.first.pos.x, waypoints.first.pos.y);
       for (int i = 1; i < waypoints.length; i++) {
-        addStop(waypoints[i]);
+        addStop(waypoints[i].pos);
       }
     }
   }
@@ -138,7 +154,9 @@ abstract class TransitLineComponent extends Component with TapCallbacks {
   /// Calculates [stationCount] coordinates equally distributed across the entire path.
   /// Uses dart:ui PathMetrics for exact contour tracking.
   List<Vector2> calculateEquidistantStations(int stationCount) {
-    if (stationCount <= 1) return waypoints.isNotEmpty ? [waypoints.first] : [];
+    if (stationCount <= 1) {
+      return waypoints.isNotEmpty ? [waypoints.first.pos] : [];
+    }
 
     final metrics = linePath.computeMetrics().toList();
     if (metrics.isEmpty) return [];

@@ -73,7 +73,7 @@ import 'dart:convert';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:ttc/models/disruption.dart';
-import 'package:ttc/models/stations_v2.dart';
+import 'package:ttc/models/station_stop.dart';
 import 'package:ttc/views/widgets/game.dart';
 
 void main() {
@@ -86,10 +86,13 @@ class TTCMapApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false,
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF121212),),
-      home: const SubwayMapScreen(),);
+        scaffoldBackgroundColor: const Color(0xFF121212),
+      ),
+      home: const SubwayMapScreen(),
+    );
   }
 }
 
@@ -101,7 +104,7 @@ class SubwayMapScreen extends StatefulWidget {
 }
 
 class _SubwayMapScreenState extends State<SubwayMapScreen> {
-  List<Station> stations = [];
+  List<StationStop> stations = [];
 
   List<LineDisruption> disruptions = [];
 
@@ -110,9 +113,11 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
     super.initState();
     // Example disruptions: Line 2 between Islington and Jane
     disruptions = [
-      LineDisruption(lineId: 1,
+      LineDisruption(
+        lineId: 1,
         fromStationName: 'Highway 407',
-        toStationName: 'Pioneer Village',),
+        toStationName: 'Pioneer Village',
+      ),
     ];
   }
 
@@ -128,25 +133,24 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
 
   Future<bool> initMap() async {
     final res = jsonDecode(
-      await DefaultAssetBundle.of(context).loadString("assets/map/map.json"),);
+      await DefaultAssetBundle.of(context).loadString("assets/map/map.json"),
+    );
 
     List<int> translateLineNumber(String dat) {
-      if (dat
-          .split(",")
-          .length > 1) {
+      if (dat.split(",").length > 1) {
         return dat.split(",").map((x) => int.parse(x)).toList();
       }
       return [int.parse(dat)];
     }
 
-    stations = (res['data'] as List).map((item) =>
-        Station(
-          name: item['name'],
-          pos: Vector2(item['translated_lat'].toDouble(),
-            item['translated_lon'].toDouble(),),
-          lines: translateLineNumber(item['line_number']),
-          stop_id: item['id'],
-          parent_id: item['parent_station_id'],),).toList();
+    // stations = (res['data'] as List).map((item) =>
+    //     Station(
+    //       name: item['name'],
+    //       pos: Vector2(item['translated_lat'].toDouble(),
+    //         item['translated_lon'].toDouble(),),
+    //       lines: translateLineNumber(item['line_number']),
+    //       stop_id: item['id'],
+    //       parent_id: item['parent_station_id'],),).toList();
 
     return true;
   }
@@ -156,26 +160,36 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
     return Builder(builder: (_) => GameWidget(game: TTCMapGame()));
   }
 
-  void _showDetails(BuildContext context, Station station) {
-    showModalBottomSheet(context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),),
-      builder: (context) =>
-          Padding(padding: const EdgeInsets.all(24),
-            child: Column(mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(station.name.toUpperCase(), style: const TextStyle(
-                    fontSize: 22, fontWeight: FontWeight.bold),),
-                const SizedBox(height: 10),
-                Text("Status: ${station.status == StationStatus.normal
-                    ? "Normal"
-                    : "INCIDENT"}", style: TextStyle(
-                  color: station.status == StationStatus.normal
-                      ? Colors.green
-                      : Colors.red,),),
-                const SizedBox(height: 20),
-              ],),),);
-  }
+  // void _showDetails(BuildContext context, Station station) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     backgroundColor: const Color(0xFF1E1E1E),
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  //     ),
+  //     builder: (context) => Padding(
+  //       padding: const EdgeInsets.all(24),
+  //       child: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             station.name.toUpperCase(),
+  //             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+  //           ),
+  //           const SizedBox(height: 10),
+  //           Text(
+  //             "Status: ${station.status == StationStatus.normal ? "Normal" : "INCIDENT"}",
+  //             style: TextStyle(
+  //               color: station.status == StationStatus.normal
+  //                   ? Colors.green
+  //                   : Colors.red,
+  //             ),
+  //           ),
+  //           const SizedBox(height: 20),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 }

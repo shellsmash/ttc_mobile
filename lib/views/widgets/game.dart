@@ -1,8 +1,9 @@
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:flame/experimental.dart';
 import 'package:flame/game.dart';
 import 'package:ttc/models/disruption.dart';
-import 'package:ttc/models/stations_v2.dart';
+import 'package:ttc/models/station_stop.dart';
 import 'package:ttc/views/widgets/component/line/line_1.dart';
 
 import 'component/line/line_2.dart';
@@ -19,7 +20,7 @@ class TTCMapGame extends FlameGame with DragCallbacks, ScaleCallbacks {
   double _startZoom = 1.0;
 
   List<LineDisruption> disruptions = [];
-  List<Station> stations = [];
+  List<StationStop> stations = [];
 
   Vector2 cameraPos = Vector2.zero();
 
@@ -44,8 +45,9 @@ class TTCMapGame extends FlameGame with DragCallbacks, ScaleCallbacks {
     //  This would visually indicate which parts of the line are impacted by an incident, making it easier for users to understand the scope of disruptions at a glance.
     //  Add a thread to allow customers to time-sensitive comment or chat on the incident, and share updates.
 
-    camera.viewfinder.anchor = Anchor.topCenter;
+    camera.viewfinder.anchor = Anchor.center;
     // camera.setBounds(Rectangle.fromLTWH(0, 0, canvasWidth, canvasHeight));
+    camera.viewfinder.zoom = 0.5;
     world.addAll([Line1(), Line2(), Line4(), Line5(), Line6()]);
 
     // UpExpress()
