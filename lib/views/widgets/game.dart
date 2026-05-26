@@ -53,12 +53,6 @@ class TTCMapGame extends FlameGame with DragCallbacks, ScaleCallbacks {
     // UpExpress()
   }
 
-  // @override
-  // void handleHotReload() {
-  //   // TODO: implement handleHotReload
-  //   super.handleHotReload();
-  //   updateStations();
-  // }
 
   @override
   void onDragUpdate(DragUpdateEvent event) {

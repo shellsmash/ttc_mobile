@@ -1,6 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
+import 'package:ttc/models/station_disruption.dart';
 import 'package:ttc/models/station_stop.dart';
 import 'package:ttc/views/widgets/utils/text_stop.dart';
 
@@ -10,15 +11,18 @@ abstract class TransitLineComponent extends Component with TapCallbacks {
   final double strokeWidth;
 
   late final Path linePath;
+  late final Path disruptedLinePath;
   late final Paint linePaint;
+
   late final Paint glowPaint;
+  late final Paint disruptedLinePaint;
 
   late final Paint stationPaint;
   late final Paint disabledStationPaint;
 
   bool isGlowing = false;
 
-  double _textRotationRadian = -.5;
+  final double _textRotationRadian = -.5;
 
   TransitLineComponent({
     required this.lineColor,
@@ -32,6 +36,7 @@ abstract class TransitLineComponent extends Component with TapCallbacks {
       canvas.drawPath(linePath, glowPaint);
     }
     canvas.drawPath(linePath, linePaint);
+    canvas.drawPath(disruptedLinePath, disruptedLinePaint);
     for (final waypoint in waypoints) {
       final offset = Offset(waypoint.pos.x, waypoint.pos.y);
       canvas.drawCircle(offset, strokeWidth * 0.8, stationPaint);
@@ -120,6 +125,13 @@ abstract class TransitLineComponent extends Component with TapCallbacks {
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
 
+    disruptedLinePaint = Paint()
+      ..color = Colors.red
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
     glowPaint = Paint()
       ..color = lineColor.withOpacity(0.8)
       ..strokeWidth = strokeWidth * 2.5
@@ -139,16 +151,29 @@ abstract class TransitLineComponent extends Component with TapCallbacks {
       ..style = PaintingStyle.fill;
 
     linePath = Path();
+    disruptedLinePath = Path();
     if (waypoints.isNotEmpty) {
       linePath.moveTo(waypoints.first.pos.x, waypoints.first.pos.y);
-      for (int i = 1; i < waypoints.length; i++) {
-        addStop(waypoints[i].pos);
+      for (int i = 0; i < waypoints.length; i++) {
+        addStop(waypoints[i]);
+        // Add this with red color, indicating station disrupted
       }
     }
   }
 
-  void addStop(Vector2 waypoint) {
-    linePath.lineTo(waypoint.x, waypoint.y);
+  void addStop(StationStop waypoint) {
+    if (disruptions.containsKey(waypoint.stopId)) {
+      disruptedLinePath.moveTo(waypoint.pos.x, waypoint.pos.y);
+      Set<String> dS = disruptions[waypoint.stopId] ?? {};
+      List<StationStop> dW = waypoints
+          .where((item) => dS.contains(item.stopId))
+          .toList();
+      for (var w in dW) {
+        disruptedLinePath.lineTo(w.pos.x, w.pos.y);
+      }
+    } else {
+      linePath.lineTo(waypoint.pos.x, waypoint.pos.y);
+    }
   }
 
   /// Calculates [stationCount] coordinates equally distributed across the entire path.
